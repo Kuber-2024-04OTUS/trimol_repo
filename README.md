@@ -7,5 +7,6 @@ kubectl apply -f namespace.yaml
 kubectl label nodes minikube homework=true
 
 # Запуск
-kubectl apply -f deployment.yaml --namespace=homework
+kubectl apply -f deployment.yaml
 
+# Проверка "livenessProbe" провел сделав ошибку в имени файла index.html - в результате контейнеры перезапускаются каждые 25 сек
