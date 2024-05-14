@@ -38,18 +38,26 @@ spec:
       - name: homework2
         image: nginx:latest
         ports:
-          - containerPort: 80
+          - containerPort: 8000
             name: nginx-port
         volumeMounts:
+        - name: config
+          mountPath: /etc/nginx/conf.d/
         - name: work-dir
           mountPath: /homework
         readinessProbe:
           httpGet:
             path: /index.html
-            port: 80
+            port: 8000
             scheme: HTTP
           initialDelaySeconds: 5
           periodSeconds: 5
       volumes:
         - name: work-dir
           emptyDir: {}
+        - name: config
+          configMap:
+            name: cm-nginx
+            items:
+              - key: default.conf
+                path: default.conf
