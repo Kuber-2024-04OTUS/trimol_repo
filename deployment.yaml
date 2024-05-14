@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: homework2
+  namespace: homework
+spec:
+  replicas: 3
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: homework2
+  template:
+    metadata:
+      labels:
+        app: homework2
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: homework
+                operator: In
+                values:
+                - "true"
+      initContainers:
+      - name: init-nginx
+        image: busybox
+        volumeMounts:
+        - name: work-dir
+          mountPath: /init
+        command: [/bin/sh, -c, touch index.html && echo "<html><head><title>homework</title></head><body><h1>Homework</h1></body></html>" > /init/index.html] 
+      containers:
+      - name: homework2
+        image: nginx:latest
+        ports:
+          - containerPort: 80
+            name: nginx-port
+        volumeMounts:
+        - name: work-dir
+          mountPath: /homework
+        readinessProbe:
+          httpGet:
+            path: /index.html
+            port: 80
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+        - name: work-dir
+          emptyDir: {}
