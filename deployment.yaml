@@ -32,24 +32,32 @@ spec:
         image: busybox
         volumeMounts:
         - name: work-dir
-          mountPath: /usr/share/nginx/html/
-        command: [/bin/sh, -c, touch index.html && echo "<html><head><title>homework</title></head><body><h1>Homework</h1></body></html>" > /usr/share/nginx/html/index.html] 
+          mountPath: /init
+        command: [/bin/sh, -c, touch index.html && echo "<html><head><title>homework</title></head><body><h1>Homework</h1></body></html>" > /init/index.html] 
       containers:
       - name: homework2
         image: nginx:latest
         ports:
-          - containerPort: 80
+          - containerPort: 8000
             name: nginx-port
         volumeMounts:
+        - name: config
+          mountPath: /etc/nginx/conf.d/
         - name: work-dir
-          mountPath: /usr/share/nginx/html/
+          mountPath: /homework
         readinessProbe:
           httpGet:
             path: /index.html
-            port: 80
+            port: 8000
             scheme: HTTP
           initialDelaySeconds: 5
           periodSeconds: 5
       volumes:
         - name: work-dir
           emptyDir: {}
+        - name: config
+          configMap:
+            name: cm-nginx
+            items:
+              - key: default.conf
+                path: default.conf
