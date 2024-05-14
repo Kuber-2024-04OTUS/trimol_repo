@@ -12,11 +12,11 @@ spec:
     type: RollingUpdate
   selector:
     matchLabels:
-      app: myapp
+      app: homework2
   template:
     metadata:
       labels:
-        app: myapp
+        app: homework2
     spec:
       affinity:
         nodeAffinity:
@@ -31,29 +31,25 @@ spec:
       - name: init-nginx
         image: busybox
         volumeMounts:
-        - name: init
-          mountPath: /usr/share/nginx/html/
-        workingDir: /usr/share/nginx/html/
-        command: [/bin/sh, -c, touch index.html && echo "<html><head><title>homework</title></head><body><h1>Homework</h1></body></html>" > index.html] 
+        - name: work-dir
+          mountPath: /init
+        command: [/bin/sh, -c, touch index.html && echo "<html><head><title>homework</title></head><body><h1>Homework</h1></body></html>" > /init/index.html] 
       containers:
-      - name: nginx
+      - name: homework2
         image: nginx:latest
+        ports:
+          - containerPort: 80
+            name: nginx-port
         volumeMounts:
-        - name: homework
-          mountPath: /usr/share/nginx/html/
-        livenessProbe:
-          exec:
-            command:
-              - /bin/sh
-              - -c
-              - "[ -f /usr/share/nginx/html/index.html ]"
+        - name: work-dir
+          mountPath: /homework
+        readinessProbe:
+          httpGet:
+            path: /index.html
+            port: 80
+            scheme: HTTP
           initialDelaySeconds: 5
           periodSeconds: 5
       volumes:
-        - name: homework
-          hostPath:
-            path: /usr/share/nginx/html/
-        - name: init
-          hostPath:
-            path: /usr/share/nginx/html/
-
+        - name: work-dir
+          emptyDir: {}
