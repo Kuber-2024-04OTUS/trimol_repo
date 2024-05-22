@@ -1,5 +1,11 @@
 # Репозиторий для выполнения домашних заданий курса "Инфраструктурная платформа на основе Kubernetes-2024-02" 
 
+
+# Запустил minikube через hyperV для более удобной проверки так как пока работаю на windows 11
+minikube start --vm-driver=hyperv
+
+
+
 # Создание namespace homework
 kubectl apply -f namespace.yaml
 
@@ -13,17 +19,21 @@ kubectl apply -f namespace.yaml
 # kube-system       Active   23h
 
 
-# Вопрос по пути монтирования если изменить пути с /usr/share/nginx/html/ то придется менять конфигурацию nginx и указать новый путь
-
 
 # смена namespace с def на homework
 kubectl config set-context --current --namespace=homework
+
 
 
 # Добавление label на node для точного развертывания
 kubectl label nodes minikube homework=true
 
 
+
+# установка ingress addons 
+minikube addons enable ingress
+# The 'ingress' addon is enabled
+# ingress-nginx   ingress-nginx-controller-84df5799c-tw5ld   1/1     Running     0          20m
 
 # Добавление configmap
 kubectl apply -f .\configMap.yaml
@@ -36,11 +46,11 @@ kubectl apply -f .\configMap.yaml
 
 
 
-# создание service 
+# создание serviceIP 
 kubectl apply -f service.yaml
 # kubectl get service          
-# NAME                  TYPE       CLUSTER-IP    EXTERNAL-IP   PORT(S)          AGE
-# homework-deployment   NodePort   10.96.4.249   <none>        8000:30999/TCP   7s
+# NAME                  TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+# homework-deployment   ClusterIP   10.101.79.147   <none>        8000/TCP   2s
 
 
 
@@ -64,27 +74,21 @@ kubectl apply -f deployment.yaml
 kubectl get service
 # NAME                  TYPE       CLUSTER-IP    EXTERNAL-IP   PORT(S)          AGE
 # homework-deployment   NodePort   10.96.4.249   <none>        8000:30999/TCP   5m45s
-minikube service homework-deployment --url -n homework
-# http://127.0.0.1:59156
 
-curl http://127.0.0.1:59156
 
-# StatusCode        : 200
-# StatusDescription : OK
-# Content           : <html><head><title>homework</title></head><body><h1>Homework</h1></body></html>
-#
-# RawContent        : HTTP/1.1 200 OK
-#                    Connection: keep-alive
-#                    Accept-Ranges: bytes
-#                    Content-Length: 80
-#                    Content-Type: text/html
-#                    Date: Tue, 14 May 2024 15:18:42 GMT
-#                    ETag: "66437eec-50"
-#                    Last-Modified: Tue, 14 May 2024 15...
-# Forms             : {}
-# Headers           : {[Connection, keep-alive], [Accept-Ranges, bytes], [Content-Length, 80], [Content-Type, text/html]...}
-# Images            : {}
-# InputFields       : {}
-# Links             : {}
-# ParsedHtml        : System.__ComObject
-# RawContentLength  : 80
+# Применение ingress 
+kubectl apply -f ingress.yaml
+
+# Получение ip для проверки 
+kubectl get ingress 
+
+# NAME                  CLASS   HOSTS           ADDRESS         PORTS   AGE
+# homework-deployment   nginx   homework.otus   172.29.205.64   80      49s
+
+# добавил значение в файлл C:\Windows\System32\drivers\etc\hosts
+# 172.29.205.64   homework.otus
+
+# При открытие в браузере по url http://homework.otus/ открывается успешно
+
+
+# задание со * не понял что требуется 301 редирект на nginx выполнить 
