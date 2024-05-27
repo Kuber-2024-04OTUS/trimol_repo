@@ -4,7 +4,6 @@ metadata:
   name: homework2
   namespace: homework
 spec:
-  serviceAccountName: monitoring
   replicas: 3
   strategy:
     rollingUpdate:
@@ -55,6 +54,7 @@ spec:
             scheme: HTTP
           initialDelaySeconds: 5
           periodSeconds: 5
+      serviceAccountName: monitoring-sa
       volumes:
         - name: work-dir
           emptyDir: {}
