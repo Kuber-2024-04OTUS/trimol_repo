@@ -70,6 +70,11 @@ kubectl apply -f service.yaml
 # homework-deployment   ClusterIP   10.101.79.147   <none>        8000/TCP   2s
 
 
+# Создание пользователя monitoring
+kubectl apply -f sa-monitoring.yaml
+kubectl apply -f croleBinding-monitoring.yaml
+kubectl apply -f crole-monitoruing.yaml 
+
 
 
 # Запуск
@@ -111,7 +116,8 @@ kubectl get ingress
 
 
 
-
+# Включение addons metric
+minikube addons enable metrics-server
 
 
 # /var/run/secrets/kubernetes.io/serviceaccount
@@ -122,7 +128,7 @@ kubectl get ingress
 # NAMESPACE=$(cat ${SERVICEACCOUNT}/namespace)
 # TOKEN=$(cat ${SERVICEACCOUNT}/token)
 # CACERT=${SERVICEACCOUNT}/ca.crt
-# curl --cacert ${CACERT} --header "Authorization: Bearer fdgdfgdfgfdg" -X GET ${APISERVER}/api
+# curl --cacert ${CACERT} --header "Authorization: Bearer $TOKEN" -X GET ${APISERVER}/api
 
 
 
@@ -210,3 +216,41 @@ XLOHbmIpwon+4256+/SRNWFwgxG/vfEkKQC7hqUcz30kpDS144mE1g==
 # kubectl config set-context cd --cluster=minikube --user cd
 
 # C:\Users\trimo\.kube
+
+
+# curl -k https://10.104.228.8/apis/metrics.k8s.io/v1beta1/nodes --header "Authorization: Bearer $TOKEN" --insecure
+# curl -k https://kubernetes.default.svc/apis/metrics.k8s.io/v1beta1/nodes --header "Authorization: Bearer $TOKEN" --insecure
+# curl -k https://kubernetes.default.svc/apis/metrics.k8s.io/v1beta1/nodes --header "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)"  --insecure
+
+# curl --cacert ${CACERT} --header "Authorization: Bearer $TOKEN" -X GET ${APISERVER}/apis/metrics.k8s.io/v1beta1/nodes
+
+# kubectl get pod,svc -n kube-system
+# https://stackoverflow.com/questions/58911806/how-to-expose-kubernetes-metric-server-api-to-curl-from-inside-the-pod
+# 10.104.228.8
+
+
+
+
+# Создание пользователя cd с правами cluster-admin для namespace homework
+start  cd create user
+kubectl create clusterrolebinding cb_role_binding --clusterrole=cluster-admin --serviceaccount=homework:cd
+
+
+
+# создание token для cd на 1 день
+kubectl create token cd --duration=24h
+# Name:         secret-cd
+# Namespace:    homework
+# Labels:       <none>
+# Annotations:  kubernetes.io/service-account.name: cd
+#               kubernetes.io/service-account.uid: 7dd9d2e0-dbc4-4db6-8cce-f3c6631a507e
+
+# Type:  kubernetes.io/service-account-token
+
+# Data
+# ====
+# token:      eyJhbGciOiJSUzI1NiIsImtpZCI6IktWZHhGYVlkY2dnWkdFQWplTGhIQjVxME5RRVp2Mzh3cm5FNGRTNkJ0YjgifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJob21ld29yayIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJzZWNyZXQtY2QiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC5uYW1lIjoiY2QiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiI3ZGQ5ZDJlMC1kYmM0LTRkYjYtOGNjZS1mM2M2NjMxYTUwN2UiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6aG9tZXdvcms6Y2QifQ.A4HgKhdplE9Palstqbu3Py44UsI0N32EW1Cg0Cj9vzSJuzOpusFRmMf2UiYlPugR_Emb7R3nCC-u5GKP-GwarEX_M-qOHpXLj4Bk0_yexFpniDk4j6gXPrKktNAfN0sKI7tuxZjhxNikpS2YJ7JmHs1JZYAq96DA47S4wgB2-hnK6lVCCMVESq48sJjnpmR3fnvjtlNuQSlHr9I6spAXccK8IyF40dyM1O-iGaPpAhpJ98gdoJBz0f8cdQgAQPO9WImH-TIKzx1G6bWDRgMYaPIe0ks3MITp5B-coZsGoy0lv-7OLaxiHVjiGgI9sXFGvqSomedj7axnb8XKrpNdSQ
+# ca.crt:     1111 bytes
+# namespace:  8 bytes
+
+# Создан файл token

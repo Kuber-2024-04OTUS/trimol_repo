@@ -33,7 +33,8 @@ spec:
         volumeMounts:
         - name: work-dir
           mountPath: /init
-        command: [/bin/sh, -c, touch index.html && echo "<html><head><title>homework</title></head><body><h1>Homework</h1></body></html>" > /init/index.html] 
+        command: [/bin/sh, -c, "curl -k https://kubernetes.default.svc/apis/metrics.k8s.io/v1beta1/nodes --header "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)"  --insecure" > /init/metrics.html] 
+        command: [/bin/sh, -c, tou"ch index.html && echo "<html><head><title>homework</title></head><body><h1>Homework</h1></body></html>" > /init/index.html] 
       containers:
       - name: homework2
         image: nginx:latest
