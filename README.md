@@ -27,13 +27,21 @@ kubectl apply -f storageClass.yaml
 # kubectl get sc     
 # NAME                 PROVISIONER                RECLAIMPOLICY   VOLUMEBINDINGMODE    ALLOWVOLUMEEXPANSION   AGE
 # homework-sc          k8s.io/minikube-hostpath   Retain          Immediate           false                  18s
-# standard (default)   k8s.io/minikube-hostpath   Delete          Immediate           false                  4h23m
+# standard (default)   k8s.io/minikube-hostpath   Delete          Immediate           false                  4h23m 
 
 # создание PVC
 kubectl apply -f pvc.yaml
 # kubectl get pvc
 # NAME           STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
 # homework-pvc   Bound    pvc-f9a3a1ba-5a0c-4f17-87ff-2601fd3287c6   1Gi        RWO            homework-sc    <unset>                 33s
+
+
+
+kubectl apply -f sa-monitoring.yaml
+kubectl apply -f croleBinding-monitoring.yaml
+kubectl apply -f crole-monitoruing.yaml
+
+
 
 
 # Добавление label на node для точного развертывания
@@ -43,6 +51,9 @@ kubectl label nodes minikube homework=true
 
 # установка ingress addons 
 minikube addons enable ingress
+
+# включение сервиса метрик
+minikube addons enable metrics-server
 # The 'ingress' addon is enabled
 # ingress-nginx   ingress-nginx-controller-84df5799c-tw5ld   1/1     Running     0          20m
 
@@ -69,11 +80,6 @@ kubectl apply -f service.yaml
 # NAME                  TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
 # homework-deployment   ClusterIP   10.101.79.147   <none>        8000/TCP   2s
 
-
-# Создание пользователя monitoring
-kubectl apply -f sa-monitoring.yaml
-kubectl apply -f croleBinding-monitoring.yaml
-kubectl apply -f crole-monitoruing.yaml 
 
 
 
@@ -116,30 +122,15 @@ kubectl get ingress
 
 
 
-# Включение addons metric
+
+# включение сервисв метрик
 minikube addons enable metrics-server
 
 
-# /var/run/secrets/kubernetes.io/serviceaccount
-
-
-# APISERVER=https://kubernetes.default.svc
-# SERVICEACCOUNT=/var/run/secrets/kubernetes.io/serviceaccount
-# NAMESPACE=$(cat ${SERVICEACCOUNT}/namespace)
-# TOKEN=$(cat ${SERVICEACCOUNT}/token)
-# CACERT=${SERVICEACCOUNT}/ca.crt
-# curl --cacert ${CACERT} --header "Authorization: Bearer $TOKEN" -X GET ${APISERVER}/api
 
 
 
 
-
-# miniku ssh
-# sudo mkdir -p /cert
-# sudo openssl genrsa -out /cert/homework.pem 2048
-# sudo openssl req -new -key /cert/homework.pem -out /cert/homework-csr.pem -subj "/CN=homework/O=team1/"
-# sudo openssl x509 -req -in /cert/homework-csr.pem -CA /var/lib/minikube/certs/ca.crt -CAkey /var/lib/minikube/certs/ca.key -CAcreateserial -out /cert/homework.crt -days 10000
-# sudo chmod +r /cert/homework.pem
 
 #  cat /cert/homework-csr.pem
 
@@ -207,37 +198,15 @@ fYw7EQKBgQCIwJCb8FjMVezqEDjuff0wRJbs3GUAO8webpfaSclT9aMaoUlmVIqM
 vMwbpdj/U7GJeyRhp3g293Hcnqc/W69wW6gLnXjWJ3Po9gFs73mjB+sfWn8aNG0g
 XLOHbmIpwon+4256+/SRNWFwgxG/vfEkKQC7hqUcz30kpDS144mE1g==
 -----END RSA PRIVATE KEY-----
-
 # Перенес сертификаты
-
-
-# kubectl config set-credentials cd --client-certificate=C:\Users\trimo\.kube\homework.crt --client-key=C:\Users\trimo\.kube\homework.pem
-
-# kubectl config set-context cd --cluster=minikube --user cd
-
-# C:\Users\trimo\.kube
-
-
-# curl -k https://10.104.228.8/apis/metrics.k8s.io/v1beta1/nodes --header "Authorization: Bearer $TOKEN" --insecure
-# curl -k https://kubernetes.default.svc/apis/metrics.k8s.io/v1beta1/nodes --header "Authorization: Bearer $TOKEN" --insecure
-# curl -k https://kubernetes.default.svc/apis/metrics.k8s.io/v1beta1/nodes --header "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)"  --insecure
-
-# curl --cacert ${CACERT} --header "Authorization: Bearer $TOKEN" -X GET ${APISERVER}/apis/metrics.k8s.io/v1beta1/nodes
-
-# kubectl get pod,svc -n kube-system
-# https://stackoverflow.com/questions/58911806/how-to-expose-kubernetes-metric-server-api-to-curl-from-inside-the-pod
-# 10.104.228.8
-
-
 
 
 # Создание пользователя cd с правами cluster-admin для namespace homework
 start  cd create user
 kubectl create clusterrolebinding cb_role_binding --clusterrole=cluster-admin --serviceaccount=homework:cd
+kubectl config set-context cd --cluster=minikube --user cd
 
-
-
-# создание token для cd на 1 день
+# создание token на сутки
 kubectl create token cd --duration=24h
 # Name:         secret-cd
 # Namespace:    homework
@@ -254,3 +223,8 @@ kubectl create token cd --duration=24h
 # namespace:  8 bytes
 
 # Создан файл token
+
+
+
+
+# При переходе на url http://homework.otus/metric.html выводится метрики nodes
