@@ -1,0 +1,15 @@
+# Default Values for Helm Chart - Hopmework-otus
+
+url: homework.otus
+
+
+initcontainer:
+  image: alpine/curl     # в образе должн быть установлен curl 
+
+container:
+  image: nginx:latest
+  replicaCount: 3
+  containerPort: 8000
+
+namespace:
+  name: homework   
