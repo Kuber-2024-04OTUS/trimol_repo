@@ -23,7 +23,7 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
-              - key: homework
+              - key: {{ .Values.nodeAffinity.key }}
                 operator: In
                 values:
                 - "true"
@@ -41,12 +41,13 @@ spec:
           - containerPort: {{ .Values.container.containerPort }}
             name: nginx-port
         volumeMounts:
-        - name: config
-          mountPath: /etc/nginx/conf.d/
         - name: work-dir
           mountPath: /homework
+        - name: config
+          mountPath: /etc/nginx/conf.d/
         - name: cm
           mountPath: /homework/conf
+        {{- if .Values.probes.enabled }}
         readinessProbe:
           httpGet:
             path: /index.html
@@ -54,6 +55,7 @@ spec:
             scheme: HTTP
           initialDelaySeconds: 5
           periodSeconds: 5
+        {{- end }}
       serviceAccountName: monitoring-sa
       volumes:
         - name: work-dir
@@ -70,4 +72,5 @@ spec:
             items:
               - key: file
                 path: file
+
 

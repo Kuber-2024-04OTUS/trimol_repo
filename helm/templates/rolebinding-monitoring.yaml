@@ -5,7 +5,7 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: monitoring-sa
-  namespace: homework
+  namespace: {{ .Values.namespace.name }}
 roleRef:
   kind: ClusterRole
   name: monitoring-cr

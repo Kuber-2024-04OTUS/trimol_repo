@@ -4,3 +4,9 @@ description: kubernetes-templating
 type: application
 version: 0.0.1
 appVersion: 1.0.0
+
+
+dependencies:
+- name: redis
+  version: 19.5.0
+  repository: https://charts.bitnami.com/bitnami

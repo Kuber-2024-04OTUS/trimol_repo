@@ -3,6 +3,6 @@ kind: ClusterRole
 metadata:
   name: monitoring-cr
 rules:
-- apiGroups: ["", "metrics.k8s.io"]
+- apiGroups: [ "metrics.k8s.io" ]
   resources: ["nodes", "/metrics"]
   verbs: ["get", "list", "watch"]

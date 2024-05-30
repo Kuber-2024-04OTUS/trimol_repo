@@ -1,0 +1,6 @@
+Установка {{ .Chart.Name }}. завершенна
+
+release: {{ .Release.Name }}.
+
+Url http://{{ .Values.url }}
+UrlMetric -  http://{{ .Values.url }}/metric.html

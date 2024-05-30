@@ -1,6 +1,13 @@
 # Default Values for Helm Chart - Hopmework-otus
+# Namespace для установки данного Helm Chart предварительно должен быть создан
+
 
 url: homework.otus
+probes:
+  enabled: true
+
+nodeAffinity:
+  key: homework    # node для развертывания должна содержать данный key со значение true
 
 
 initcontainer:
@@ -12,4 +19,4 @@ container:
   containerPort: 8000
 
 namespace:
-  name: homework   
+  name: homework
