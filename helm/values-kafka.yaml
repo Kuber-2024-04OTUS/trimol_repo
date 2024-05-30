@@ -15,5 +15,3 @@ kafka:
       protocol: PLAINTEXT
     interbroker:
       protocol: PLAINTEXT
-
-      https://github.com/tfkfan/k8s-kafka-basic-install/blob/master/Chart.yaml
