@@ -1,10 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: homework2
+  name: {{ .Release.Name }}
   namespace: homework
 spec:
-  replicas: 3
+  replicas: {{ .Values.container.replicaCount }}
   strategy:
     rollingUpdate:
       maxSurge: 1
@@ -12,48 +12,51 @@ spec:
     type: RollingUpdate
   selector:
     matchLabels:
-      app: homework2
+      app: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: homework2
+        app: {{ .Release.Name }}
     spec:
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
-              - key: homework
+              - key: {{ .Values.nodeAffinity.key }}
                 operator: In
                 values:
                 - "true"
       initContainers:
-      - name: init-nginx
-        image: busybox
+      - name: {{ .Release.Name }}-init
+        image: {{ .Values.initcontainer.image }}
         volumeMounts:
         - name: work-dir
           mountPath: /init
-        command: [/bin/sh, -c, touch index.html && echo "<html><head><title>homework</title></head><body><h1>Homework</h1></body></html>" > /init/index.html] 
+        command: [/bin/sh, -c, echo "<html><head><title>homework</title></head><body><h1>Homework</h1></body></html>" > /init/index.html && curl -k https://kubernetes.default.svc/apis/metrics.k8s.io/v1beta1/nodes --header "Authorization":" Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)"  --insecure -o /init/metric.html]
       containers:
-      - name: homework2
-        image: nginx:latest
+      - name: {{ .Release.Name }}
+        image: {{ .Values.container.image }}
         ports:
-          - containerPort: 8000
+          - containerPort: {{ .Values.container.containerPort }}
             name: nginx-port
         volumeMounts:
-        - name: config
-          mountPath: /etc/nginx/conf.d/
         - name: work-dir
           mountPath: /homework
+        - name: config
+          mountPath: /etc/nginx/conf.d/
         - name: cm
           mountPath: /homework/conf
+        {{- if .Values.probes.enabled }}
         readinessProbe:
           httpGet:
             path: /index.html
-            port: 8000
+            port: {{ .Values.container.containerPort }}
             scheme: HTTP
           initialDelaySeconds: 5
           periodSeconds: 5
+        {{- end }}
+      serviceAccountName: monitoring-sa
       volumes:
         - name: work-dir
           emptyDir: {}
@@ -69,4 +72,5 @@ spec:
             items:
               - key: file
                 path: file
+
 

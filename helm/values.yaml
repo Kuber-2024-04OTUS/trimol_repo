@@ -1,0 +1,22 @@
+# Default Values for Helm Chart - Hopmework-otus
+# Namespace для установки данного Helm Chart предварительно должен быть создан
+
+
+url: homework.otus
+probes:
+  enabled: true
+
+nodeAffinity:
+  key: homework    # node для развертывания должна содержать данный key со значение true
+
+
+initcontainer:
+  image: alpine/curl     # в образе должн быть установлен curl 
+
+container:
+  image: nginx:latest
+  replicaCount: 3
+  containerPort: 8000
+
+namespace:
+  name: homework
