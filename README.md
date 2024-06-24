@@ -27,13 +27,21 @@ kubectl apply -f storageClass.yaml
 # kubectl get sc     
 # NAME                 PROVISIONER                RECLAIMPOLICY   VOLUMEBINDINGMODE    ALLOWVOLUMEEXPANSION   AGE
 # homework-sc          k8s.io/minikube-hostpath   Retain          Immediate           false                  18s
-# standard (default)   k8s.io/minikube-hostpath   Delete          Immediate           false                  4h23m
+# standard (default)   k8s.io/minikube-hostpath   Delete          Immediate           false                  4h23m 
 
 # создание PVC
 kubectl apply -f pvc.yaml
 # kubectl get pvc
 # NAME           STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
 # homework-pvc   Bound    pvc-f9a3a1ba-5a0c-4f17-87ff-2601fd3287c6   1Gi        RWO            homework-sc    <unset>                 33s
+
+
+
+kubectl apply -f sa-monitoring.yaml
+kubectl apply -f croleBinding-monitoring.yaml
+kubectl apply -f crole-monitoruing.yaml
+
+
 
 
 # Добавление label на node для точного развертывания
@@ -43,6 +51,9 @@ kubectl label nodes minikube homework=true
 
 # установка ingress addons 
 minikube addons enable ingress
+
+# включение сервиса метрик
+minikube addons enable metrics-server
 # The 'ingress' addon is enabled
 # ingress-nginx   ingress-nginx-controller-84df5799c-tw5ld   1/1     Running     0          20m
 
@@ -112,3 +123,40 @@ kubectl get ingress
 
 
 
+# включение сервисв метрик
+minikube addons enable metrics-server
+
+
+
+
+
+
+
+
+
+
+# Создание пользователя cd с правами cluster-admin для namespace homework
+start  cd create user
+kubectl create clusterrolebinding cb_role_binding --clusterrole=cluster-admin --serviceaccount=homework:cd
+kubectl config set-context cd --cluster=minikube --user cd
+
+# создание token на сутки
+kubectl create token cd --duration=24h
+# Name:         secret-cd
+# Namespace:    homework
+# Labels:       <none>
+# Annotations:  kubernetes.io/service-account.name: cd
+#               kubernetes.io/service-account.uid: 7dd9d2e0-dbc4-4db6-8cce-f3c6631a507e
+
+# Type:  kubernetes.io/service-account-token
+
+# Data
+# ====
+
+
+# Создан файл token
+
+
+
+
+# При переходе на url http://homework.otus/metric.html выводится метрики nodes
