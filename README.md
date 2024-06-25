@@ -1,114 +1,117 @@
-# Запустил minikube через hyperV для более удобной проверки так как пока работаю на windows 11
-minikube start --vm-driver=hyperv
+# Репозиторий для выполнения домашних заданий курса "Инфраструктурная платформа на основе Kubernetes-2024-02" 
+
+# Создание sa
+kubectl apply -f sa.yaml
+
+# Свзяываем с ролью cluster-admin
+kubectl create clusterrolebinding mysql-controller --clusterrole=cluster-admin --serviceaccount=default:mysql-controller
+
+# Привязываем crd
+kubectl apply -f crd.yaml
+
+# Запускаем deploymrnt контроллера crd
+kubectl apply -f mysql-controller.yaml
+
+# Просмотр log
+ kubectl logs -f ID -c main
+# /usr/local/lib/python3.10/site-packages/kopf/_core/reactor/running.py:179: FutureWarning: Absence of either namespaces or cluster-wide flag will become an error soon. For now, switching to the cluster-wide mode for backward compatibility.
+# warnings.warn("Absence of either namespaces or cluster-wide flag will become an error soon."
+# [2024-06-24 04:08:00,960] kopf._core.engines.a [INFO    ] Initial authentication has been initiated.
+# [2024-06-24 04:08:00,961] kopf.activities.auth [INFO    ] Activity 'login_via_client' succeeded.
+# [2024-06-24 04:08:00,962] kopf._core.engines.a [INFO    ] Initial authentication has finished.
+# [2024-06-24 04:08:00,977] kopf._core.reactor.o [WARNING ] Not enough permissions to watch for resources: changes (creation/deletion/updates) will not be noticed; the resources are only refreshed on operator restarts.
 
 
 
-# Создание namespace homework
-kubectl apply -f namespace.yaml
-
-# Результат
-# kubectl get namespace          
-# NAME              STATUS   AGE
-# default           Active   23h
-# homework          Active   23h
-# kube-node-lease   Active   23h
-# kube-public       Active   23h
-# kube-system       Active   23h
-
-
-
-# смена namespace с def на homework
-kubectl config set-context --current --namespace=homework
-
-
-
-# Создание storageclass
-kubectl apply -f storageClass.yaml
-# kubectl get sc     
-# NAME                 PROVISIONER                RECLAIMPOLICY   VOLUMEBINDINGMODE    ALLOWVOLUMEEXPANSION   AGE
-# homework-sc          k8s.io/minikube-hostpath   Retain          Immediate           false                  18s
-# standard (default)   k8s.io/minikube-hostpath   Delete          Immediate           false                  4h23m
-
-# создание PVC
-kubectl apply -f pvc.yaml
-# kubectl get pvc
-# NAME           STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
-# homework-pvc   Bound    pvc-f9a3a1ba-5a0c-4f17-87ff-2601fd3287c6   1Gi        RWO            homework-sc    <unset>                 33s
+# Создаем обьект cr
+kubectl apply -f cr.yaml
+# [2024-06-24 04:08:18,813] kopf.objects         [INFO    ] [default/mysqll] Creating pv, pvc for mysql data and svc...
+# [2024-06-24 04:08:18,833] kopf.objects         [INFO    ] [default/mysqll] Creating mysql deployment...
+# [2024-06-24 04:08:18,845] kopf.objects         [INFO    ] [default/mysqll] Waiting for mysql deployment to become ready...
+# [2024-06-24 04:08:28,860] kopf.objects         [INFO    ] [default/mysqll] Waiting for mysql deployment to become ready...
+# [2024-06-24 04:08:38,875] kopf.objects         [INFO    ] [default/mysqll] Waiting for mysql deployment to become ready...
+# [2024-06-24 04:08:48,889] kopf.objects         [INFO    ] [default/mysqll] Waiting for mysql deployment to become ready...
+# [2024-06-24 04:08:58,903] kopf.objects         [INFO    ] [default/mysqll] Waiting for mysql deployment to become ready...
+# [2024-06-24 04:09:08,917] kopf.objects         [INFO    ] [default/mysqll] Waiting for mysql deployment to become ready...
+# [2024-06-24 04:09:18,935] kopf.objects         [INFO    ] [default/mysqll] Waiting for mysql deployment to become ready...
+# [2024-06-24 04:09:28,948] kopf.objects         [INFO    ] [default/mysqll] Waiting for mysql deployment to become ready...
+# [2024-06-24 04:09:38,964] kopf.objects         [INFO    ] [default/mysqll] Waiting for mysql deployment to become ready...
+# [2024-06-24 04:09:48,979] kopf.objects         [INFO    ] [default/mysqll] Waiting for mysql deployment to become ready...
+# [2024-06-24 04:09:58,993] kopf.objects         [INFO    ] [default/mysqll] MySQL instance mysqll and its children resources created!
+# [2024-06-24 04:09:58,996] kopf.objects         [INFO    ] [default/mysqll] Handler 'mysql_on_create' succeeded.
+# [2024-06-24 04:09:58,996] kopf.objects         [INFO    ] [default/mysqll] Creation is processed: 1 succeeded; 0 failed.
 
 
-# Добавление label на node для точного развертывания
-kubectl label nodes minikube homework=true
-
-
-
-# установка ingress addons 
-minikube addons enable ingress
-# The 'ingress' addon is enabled
-# ingress-nginx   ingress-nginx-controller-84df5799c-tw5ld   1/1     Running     0          20m
-
-# Добавление configmap
-kubectl apply -f configMap.yaml
-# kubectl get configmap
-# NAME               DATA   AGE
-# cm-nginx           1      4m14s
-# kube-root-ca.crt   1      4m44s
-
-# Добавление configmap
-kubectl apply -f cm.yaml
-# kubectl get configmap
-# NAME               DATA   AGE
-# cm                 1      24m
-# cm-nginx           1      12h
-# kube-root-ca.crt   1      12h
-
-
-
-# создание serviceIP 
-kubectl apply -f service.yaml
-# kubectl get service          
-# NAME                  TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
-# homework-deployment   ClusterIP   10.101.79.147   <none>        8000/TCP   2s
-
-
-
-
-# Запуск
-kubectl apply -f deployment.yaml
-# kubectl get po
-# NAME                        READY   STATUS    RESTARTS   AGE
-# homework2-6db46fd9b-dv6d6   1/1     Running   0          65s
-# homework2-6db46fd9b-lvqrk   1/1     Running   0          65s
-# homework2-6db46fd9b-qhqwz   1/1     Running   0          65s
-
-
-# kubectl get deployment
-# NAME        READY   UP-TO-DATE   AVAILABLE   AGE
-# homework2   3/3     3            3           70s
-
-
-# Проверка функционирования
-# minikube service <имя сервиса> --url -n homework
+# Проверка service, PV и pvc
 kubectl get service
-# NAME                  TYPE       CLUSTER-IP    EXTERNAL-IP   PORT(S)          AGE
-# homework-deployment   NodePort   10.96.4.249   <none>        8000:30999/TCP   5m45s
+# mysqll       ClusterIP   None         <none>        3306/TCP   2m20s
+kubectl get pv
+# mysqll-pv   1k         RWO            Retain           Bound    default/mysqll-pvc   standard       <unset>                          2m24s
+kubectl get pvc
+# mysqll-pvc   Bound    mysqll-pv   1k         RWO            standard       <unset>                 2m26s
 
 
-# Применение ingress 
-kubectl apply -f ingress.yaml
-
-# Получение ip для проверки 
-kubectl get ingress 
-
-# NAME                  CLASS   HOSTS           ADDRESS         PORTS   AGE
-# homework-deployment   nginx   homework.otus   172.29.205.64   80      49s
-
-# добавил значение в файлл C:\Windows\System32\drivers\etc\hosts
-# 172.29.205.64   homework.otus
-
-# При открытие в браузере по url http://homework.otus/ открывается успешно
-
-# При открытие по url http://homework.otus/conf/file отображются переменные созданные в configmap cm
+# Проверка на удаление ресурсов с обьектом cr
+kubectl delete -f cr.yaml
+# Ресурсы service, po, pv и pvc были удаленны
 
 
 
 
+
+
+# Задание c*
+# Переключается на Cluster-wide и использование Role и RoleBinding вместо ClusterRole и ClusterRoleBinding приводит к ошибке
+# /usr/local/lib/python3.10/site-packages/kopf/_core/reactor/running.py:179: FutureWarning: Absence of either namespaces or cluster-wide flag will become an error soon. For now, switching to the cluster-wide mode for backward compatibility.
+# warnings.warn("Absence of either namespaces or cluster-wide flag will become an error soon."
+
+# Создание sa
+kubectl apply -f sa.yaml
+
+# Создание ClusterRole
+kubectl apply -f sa-r.yaml
+
+# Создание clusterroleBinding
+kubectl apply -f sa-rb.yaml
+
+# Привязываем crd
+kubectl apply -f crd.yaml
+
+# Запускаем deploymrnt контроллера crd
+kubectl apply -f mysql-controller.yaml
+
+# Создаем обьект cr
+kubectl apply -f cr.yaml
+# Создание и удаление po, pvб pvc и service выполняется
+
+
+
+
+
+
+
+
+#задание c**
+# Для выполнения была развернута виртуальная машина с ubuntu 22 LTS установлени minikube, operator-sdk, go
+# Задание выполнялось в папке operator
+
+operator-sdk version
+# operator-sdk version: "v1.33.0", kubernetes version: "1.27.0", go version: "go1.21.5", GOOS: "linux", GOARCH: "amd64"
+
+
+sudo operator-sdk init --domain homework --plugins ansible
+sudo operator-sdk create api --group otus --version v1 --kind MySQL --generate-role
+
+# Внес изменения в файлы roles/mysql/tasks/main.yml на создание deployment, pv и service 
+# pvc выдавал ошибку перенес его в /opt/oper/config/crd/bases изменив kustomization.yaml по пути config/crd для выполнения yaml pvc.yaml
+
+
+#сборка
+make docker-build IMG=trimolvl/mysql:v1
+sudo make docker-push IMG=trimolvl/mysql:v1
+make deploy IMG=trimolvl/mysql:v1
+
+# применение cr
+kubectl apply -f cr-operator.yaml
+
+# лог выполнения прикрепил в фале log.txt
