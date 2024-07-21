@@ -110,5 +110,6 @@ prometheus                       1       True         True        4d
 
 
 
+kubectl apply -f podmonitor.yaml
 
 
