@@ -1,5 +1,5 @@
 # Запустил minikube через hyperV для более удобной проверки так как пока работаю на windows 11
-minikube start --vm-driver=hyperv
+minikube start --driver vmware
 
 
 
