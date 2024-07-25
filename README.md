@@ -1,114 +1,76 @@
-# Запустил minikube через hyperV для более удобной проверки так как пока работаю на windows 11
-minikube start --vm-driver=hyperv
+# Перешел на driver vmware
+minikube start --driver vmware
 
 
 
-# Создание namespace homework
-kubectl apply -f namespace.yaml
-
-# Результат
-# kubectl get namespace          
-# NAME              STATUS   AGE
-# default           Active   23h
-# homework          Active   23h
-# kube-node-lease   Active   23h
-# kube-public       Active   23h
-# kube-system       Active   23h
-
-
-
-# смена namespace с def на homework
-kubectl config set-context --current --namespace=homework
-
-
-
-# Создание storageclass
-kubectl apply -f storageClass.yaml
-# kubectl get sc     
-# NAME                 PROVISIONER                RECLAIMPOLICY   VOLUMEBINDINGMODE    ALLOWVOLUMEEXPANSION   AGE
-# homework-sc          k8s.io/minikube-hostpath   Retain          Immediate           false                  18s
-# standard (default)   k8s.io/minikube-hostpath   Delete          Immediate           false                  4h23m
-
-# создание PVC
-kubectl apply -f pvc.yaml
-# kubectl get pvc
-# NAME           STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
-# homework-pvc   Bound    pvc-f9a3a1ba-5a0c-4f17-87ff-2601fd3287c6   1Gi        RWO            homework-sc    <unset>                 33s
-
-
-# Добавление label на node для точного развертывания
-kubectl label nodes minikube homework=true
-
-
-
-# установка ingress addons 
-minikube addons enable ingress
-# The 'ingress' addon is enabled
-# ingress-nginx   ingress-nginx-controller-84df5799c-tw5ld   1/1     Running     0          20m
 
 # Добавление configmap
-kubectl apply -f configMap.yaml
+kubectl apply -f ConfigMap.yaml
 # kubectl get configmap
 # NAME               DATA   AGE
-# cm-nginx           1      4m14s
+# nc                 1      4m14s
 # kube-root-ca.crt   1      4m44s
-
-# Добавление configmap
-kubectl apply -f cm.yaml
-# kubectl get configmap
-# NAME               DATA   AGE
-# cm                 1      24m
-# cm-nginx           1      12h
-# kube-root-ca.crt   1      12h
-
-
-
-# создание serviceIP 
-kubectl apply -f service.yaml
-# kubectl get service          
-# NAME                  TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
-# homework-deployment   ClusterIP   10.101.79.147   <none>        8000/TCP   2s
-
-
 
 
 # Запуск
 kubectl apply -f deployment.yaml
 # kubectl get po
-# NAME                        READY   STATUS    RESTARTS   AGE
-# homework2-6db46fd9b-dv6d6   1/1     Running   0          65s
-# homework2-6db46fd9b-lvqrk   1/1     Running   0          65s
-# homework2-6db46fd9b-qhqwz   1/1     Running   0          65s
+# NAME                     READY   STATUS    RESTARTS   AGE
+# nginx-6f4f49c478-8hdsx   2/2     Running   0          7m59s
 
 
-# kubectl get deployment
-# NAME        READY   UP-TO-DATE   AVAILABLE   AGE
-# homework2   3/3     3            3           70s
-
-
-# Проверка функционирования
-# minikube service <имя сервиса> --url -n homework
-kubectl get service
-# NAME                  TYPE       CLUSTER-IP    EXTERNAL-IP   PORT(S)          AGE
-# homework-deployment   NodePort   10.96.4.249   <none>        8000:30999/TCP   5m45s
-
-
-# Применение ingress 
-kubectl apply -f ingress.yaml
-
-# Получение ip для проверки 
-kubectl get ingress 
-
-# NAME                  CLASS   HOSTS           ADDRESS         PORTS   AGE
-# homework-deployment   nginx   homework.otus   172.29.205.64   80      49s
-
-# добавил значение в файлл C:\Windows\System32\drivers\etc\hosts
-# 172.29.205.64   homework.otus
-
-# При открытие в браузере по url http://homework.otus/ открывается успешно
-
-# При открытие по url http://homework.otus/conf/file отображются переменные созданные в configmap cm
+# создание service 
+kubectl apply -f Service.yaml
+# kubectl get service          
+# NAME    TYPE       CLUSTER-IP       EXTERNAL-IP   PORT(S)
+# nginx   NodePort   10.103.188.241   <none>        80:30415/TCP,9113:30869/TCP   4s
 
 
 
 
+
+
+
+kubectl get deployment
+# NAME    READY   UP-TO-DATE   AVAILABLE   AGE
+# nginx   1/1     1            1           10m
+
+
+
+
+# Установка Prometheus 
+helm install my-release oci://registry-1.docker.io/bitnamicharts/kube-prometheus
+
+
+kubectl get po
+# NAME                                                            READY   STATUS    RESTARTS   AGE
+# alertmanager-my-release-kube-prometheus-alertmanager-0          1/2     Running   0          116s
+# my-release-kube-prometheus-blackbox-exporter-7dfbb4f4bc-5jrks   1/1     Running   0          2m38s
+# my-release-kube-prometheus-operator-5d698878f6-gnrw7            1/1     Running   0          2m38s
+# my-release-kube-state-metrics-6df5584646-rtggt                  1/1     Running   0          2m38s
+# my-release-node-exporter-vhkrm                                  1/1     Running   0          2m38s
+# nginx-6f4f49c478-8hdsx                                          2/2     Running   0          13m
+# prometheus-my-release-kube-prometheus-prometheus-0              2/2     Running   0          116s
+
+
+# Запускаем ingree для подключение к web интерфейсу prometheus
+minikube addons enable ingress
+
+
+kubectl apply -f ingree-prometheus.yaml
+
+
+
+kubectl get ingress
+# NAME                  CLASS   HOSTS        ADDRESS          PORTS   AGE
+# prometheus-operated   nginx   prometheus   192.168.66.140   80      76s
+
+# добавляю запись в hosts
+
+
+# Запускаем service monitor
+kubectl apply -f serviceMonitor.yaml
+
+# В web интерфейсе prometheus переходим в status->Targets 
+# Созданный service monitor добавился и target up
+# serviceMonitor/default/nginx/0 (1/1 up)

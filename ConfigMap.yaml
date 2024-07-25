@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nc
+data:
+  status.conf: |-
+    server {
+      listen 8000;
+
+      location /stub_status {
+        stub_status;
+      }
+    }
