@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: otus
+spec:
+  destination:
+    name: ''
+    namespace: homework
+    server: https://kubernetes.default.svc
+  source:
+    path: kubernetis-network
+    repoURL: https://github.com/Kuber-2024-04OTUS/trimol_repo.git
+    targetRevision: network_for_argocd
+  sources: []
+  project: otus
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
