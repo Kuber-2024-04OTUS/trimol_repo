@@ -166,7 +166,7 @@ argocd-server-64c545845d-c7kqv                      1/1     Running   0         
 
 Создал project в argocd с названием "otus"
 Создал приложение прикрепил в файле createapp.yaml в корне 
-![Image alt](https://github.com/trimol/Kuber-2024-04OTUS/raw/network_for_argocd/images/scrin1.png)
+![Image alt](https://github.com/Kuber-2024-04OTUS/trimol_repo/blob/network_for_argocd/images/scrin1.png)
 
 
 
