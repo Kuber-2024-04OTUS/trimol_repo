@@ -172,3 +172,6 @@ argocd-server-64c545845d-c7kqv                      1/1     Running   0         
 
 
 ![Image alt](https://github.com/Kuber-2024-04OTUS/trimol_repo/blob/kubernetes-gitops/images/scrin0.png)
+![Image alt](https://github.com/Kuber-2024-04OTUS/trimol_repo/blob/kubernetes-gitops/images/scrin1.png)
+![Image alt](https://github.com/Kuber-2024-04OTUS/trimol_repo/blob/kubernetes-gitops/images/scrin2.png)
+![Image alt](https://github.com/Kuber-2024-04OTUS/trimol_repo/blob/kubernetes-gitops/images/scrin3.png)
