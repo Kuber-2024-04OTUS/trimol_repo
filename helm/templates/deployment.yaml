@@ -37,15 +37,6 @@ spec:
           mountPath: /etc/nginx/conf.d/
         - name: cm
           mountPath: /homework/conf
-        {{- if .Values.probes.enabled }}
-        readinessProbe:
-          httpGet:
-            path: /index.html
-            port: {{ .Values.container.containerPort }}
-            scheme: HTTP
-          initialDelaySeconds: 5
-          periodSeconds: 5
-        {{- end }}
       volumes:
         - name: work-dir
           emptyDir: {}
