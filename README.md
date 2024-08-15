@@ -169,3 +169,6 @@ argocd-server-64c545845d-c7kqv                      1/1     Running   0         
 Создал project в argocd с названием "helm"
 Прикрепил манифесты в корнево директории
 Скрины в приложении argocd
+
+
+![Image alt](https://github.com/Kuber-2024-04OTUS/trimol_repo/blob/kubernetes-gitops/images/scrin0.png)
