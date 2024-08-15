@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: helm
+spec:
+  destination:
+    name: ''
+    namespace: homeworkhelm
+    server: https://kubernetes.default.svc
+  source:
+    path: helm
+    repoURL: https://github.com/Kuber-2024-04OTUS/trimol_repo.git
+    targetRevision: network_for_argocd
+  sources: []
+  project: otus
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
