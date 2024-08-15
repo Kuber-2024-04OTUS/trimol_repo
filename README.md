@@ -1,117 +1,177 @@
-# Репозиторий для выполнения домашних заданий курса "Инфраструктурная платформа на основе Kubernetes-2024-02" 
-
-# Создание sa
-kubectl apply -f sa.yaml
-
-# Свзяываем с ролью cluster-admin
-kubectl create clusterrolebinding mysql-controller --clusterrole=cluster-admin --serviceaccount=default:mysql-controller
-
-# Привязываем crd
-kubectl apply -f crd.yaml
-
-# Запускаем deploymrnt контроллера crd
-kubectl apply -f mysql-controller.yaml
-
-# Просмотр log
- kubectl logs -f ID -c main
-# /usr/local/lib/python3.10/site-packages/kopf/_core/reactor/running.py:179: FutureWarning: Absence of either namespaces or cluster-wide flag will become an error soon. For now, switching to the cluster-wide mode for backward compatibility.
-# warnings.warn("Absence of either namespaces or cluster-wide flag will become an error soon."
-# [2024-06-24 04:08:00,960] kopf._core.engines.a [INFO    ] Initial authentication has been initiated.
-# [2024-06-24 04:08:00,961] kopf.activities.auth [INFO    ] Activity 'login_via_client' succeeded.
-# [2024-06-24 04:08:00,962] kopf._core.engines.a [INFO    ] Initial authentication has finished.
-# [2024-06-24 04:08:00,977] kopf._core.reactor.o [WARNING ] Not enough permissions to watch for resources: changes (creation/deletion/updates) will not be noticed; the resources are only refreshed on operator restarts.
+Развернул кластер k8s на своем оборудование через kubespray
+inventory.ini
+[all]
+master1 ansible_host=192.168.75.150  ip=192.168.75.150 etcd_member_name=etcd1
+master2 ansible_host=192.168.75.151  ip=192.168.75.151 etcd_member_name=etcd2
+master3 ansible_host=192.168.75.152  ip=192.168.75.152 etcd_member_name=etcd3
 
 
+# ## configure a bastion host if your nodes are not directly reachable
+# [bastion]
+# bastion ansible_host=x.x.x.x ansible_user=some_user
 
-# Создаем обьект cr
-kubectl apply -f cr.yaml
-# [2024-06-24 04:08:18,813] kopf.objects         [INFO    ] [default/mysqll] Creating pv, pvc for mysql data and svc...
-# [2024-06-24 04:08:18,833] kopf.objects         [INFO    ] [default/mysqll] Creating mysql deployment...
-# [2024-06-24 04:08:18,845] kopf.objects         [INFO    ] [default/mysqll] Waiting for mysql deployment to become ready...
-# [2024-06-24 04:08:28,860] kopf.objects         [INFO    ] [default/mysqll] Waiting for mysql deployment to become ready...
-# [2024-06-24 04:08:38,875] kopf.objects         [INFO    ] [default/mysqll] Waiting for mysql deployment to become ready...
-# [2024-06-24 04:08:48,889] kopf.objects         [INFO    ] [default/mysqll] Waiting for mysql deployment to become ready...
-# [2024-06-24 04:08:58,903] kopf.objects         [INFO    ] [default/mysqll] Waiting for mysql deployment to become ready...
-# [2024-06-24 04:09:08,917] kopf.objects         [INFO    ] [default/mysqll] Waiting for mysql deployment to become ready...
-# [2024-06-24 04:09:18,935] kopf.objects         [INFO    ] [default/mysqll] Waiting for mysql deployment to become ready...
-# [2024-06-24 04:09:28,948] kopf.objects         [INFO    ] [default/mysqll] Waiting for mysql deployment to become ready...
-# [2024-06-24 04:09:38,964] kopf.objects         [INFO    ] [default/mysqll] Waiting for mysql deployment to become ready...
-# [2024-06-24 04:09:48,979] kopf.objects         [INFO    ] [default/mysqll] Waiting for mysql deployment to become ready...
-# [2024-06-24 04:09:58,993] kopf.objects         [INFO    ] [default/mysqll] MySQL instance mysqll and its children resources created!
-# [2024-06-24 04:09:58,996] kopf.objects         [INFO    ] [default/mysqll] Handler 'mysql_on_create' succeeded.
-# [2024-06-24 04:09:58,996] kopf.objects         [INFO    ] [default/mysqll] Creation is processed: 1 succeeded; 0 failed.
+[kube_control_plane]
+master1
+master2
+master3
 
 
-# Проверка service, PV и pvc
-kubectl get service
-# mysqll       ClusterIP   None         <none>        3306/TCP   2m20s
-kubectl get pv
-# mysqll-pv   1k         RWO            Retain           Bound    default/mysqll-pvc   standard       <unset>                          2m24s
-kubectl get pvc
-# mysqll-pvc   Bound    mysqll-pv   1k         RWO            standard       <unset>                 2m26s
+[etcd]
+master1
+master2
+master3
 
 
-# Проверка на удаление ресурсов с обьектом cr
-kubectl delete -f cr.yaml
-# Ресурсы service, po, pv и pvc были удаленны
+[kube_node]
+master1
+master2
+master3
+
+
+[calico_rr]
+
+[k8s_cluster:children]
+kube_control_plane
+kube_node
+calico_rr
 
 
 
 
 
 
-# Задание c*
-# Переключается на Cluster-wide и использование Role и RoleBinding вместо ClusterRole и ClusterRoleBinding приводит к ошибке
-# /usr/local/lib/python3.10/site-packages/kopf/_core/reactor/running.py:179: FutureWarning: Absence of either namespaces or cluster-wide flag will become an error soon. For now, switching to the cluster-wide mode for backward compatibility.
-# warnings.warn("Absence of either namespaces or cluster-wide flag will become an error soon."
-
-# Создание sa
-kubectl apply -f sa.yaml
-
-# Создание ClusterRole
-kubectl apply -f sa-r.yaml
-
-# Создание clusterroleBinding
-kubectl apply -f sa-rb.yaml
-
-# Привязываем crd
-kubectl apply -f crd.yaml
-
-# Запускаем deploymrnt контроллера crd
-kubectl apply -f mysql-controller.yaml
-
-# Создаем обьект cr
-kubectl apply -f cr.yaml
-# Создание и удаление po, pvб pvc и service выполняется
+Инфраструктурными нодами выбраны ноды Master2 и Master3
+kubectl taint nodes master3 node-role=infra:NoSchedule
+kubectl taint nodes master2 node-role=infra:NoSchedule
 
 
 
 
 
+kubectl get node -o wide --show-labels
+NAME      STATUS   ROLES           AGE   VERSION   INTERNAL-IP      EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION       CONTAINER-RUNTIME     LABELS
+master1   Ready    control-plane   19h   v1.30.3   192.168.75.150   <none>        Ubuntu 22.04.4 LTS   5.15.0-118-generic   containerd://1.7.20   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/arch=amd64,kubernetes.io/hostname=master1,kubernetes.io/os=linux,node-role.kubernetes.io/control-plane=,node.kubernetes.io/exclude-from-external-load-balancers=
+master2   Ready    control-plane   19h   v1.30.3   192.168.75.151   <none>        Ubuntu 22.04.4 LTS   5.15.0-118-generic   containerd://1.7.20   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/arch=amd64,kubernetes.io/hostname=master2,kubernetes.io/os=linux,node-role.kubernetes.io/control-plane=,node.kubernetes.io/exclude-from-external-load-balancers=
+master3   Ready    control-plane   18h   v1.30.3   192.168.75.152   <none>        Ubuntu 22.04.4 LTS   5.15.0-118-generic   containerd://1.7.20   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/arch=amd64,kubernetes.io/hostname=master3,kubernetes.io/os=linux,node-role.kubernetes.io/control-plane=,node.kubernetes.io/exclude-from-external-load-balancers=
 
 
 
-#задание c**
-# Для выполнения была развернута виртуальная машина с ubuntu 22 LTS установлени minikube, operator-sdk, go
-# Задание выполнялось в папке operator
 
-operator-sdk version
-# operator-sdk version: "v1.33.0", kubernetes version: "1.27.0", go version: "go1.21.5", GOOS: "linux", GOARCH: "amd64"
-
-
-sudo operator-sdk init --domain homework --plugins ansible
-sudo operator-sdk create api --group otus --version v1 --kind MySQL --generate-role
-
-# Внес изменения в файлы roles/mysql/tasks/main.yml на создание deployment, pv и service 
-# pvc выдавал ошибку перенес его в /opt/oper/config/crd/bases изменив kustomization.yaml по пути config/crd для выполнения yaml pvc.yaml
+kubectl get nodes -o custom-columns=NAME:.metadata.name,TAINTS:.spec.taints
+NAME      TAINTS
+master1   <none>
+master2   [map[effect:NoSchedule key:node-role value:infra]]
+master3   [map[effect:NoSchedule key:node-role value:infra]]
 
 
-#сборка
-make docker-build IMG=trimolvl/mysql:v1
-sudo make docker-push IMG=trimolvl/mysql:v1
-make deploy IMG=trimolvl/mysql:v1
 
-# применение cr
-kubectl apply -f cr-operator.yaml
+Установка helm
+curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
+sudo apt-get install apt-transport-https --yes
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+sudo apt-get update
+sudo apt-get install helm
 
-# лог выполнения прикрепил в фале log.txt
+
+
+helm version
+version.BuildInfo{Version:"v3.15.3", GitCommit:"3bb50bbbdd9c946ba9989fbe4fb4104766302a64", GitTreeState:"clean", GoVersion:"go1.22.5"}
+
+Добавление helm chart repository
+helm repo add argo https://argoproj.github.io/argo-helm
+
+
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+
+
+
+chmod 700 get_helm.sh
+
+
+
+./get_helm.sh
+Downloading https://get.helm.sh/helm-v3.15.3-linux-amd64.tar.gz
+Verifying checksum... Done.
+Preparing to install helm into /usr/local/bin
+helm installed into /usr/local/bin/helm
+
+
+
+
+kubectl create namespace argocd
+kubectl get ns
+NAME              STATUS   AGE
+argocd            Active   4s
+default           Active   23h
+kube-node-lease   Active   23h
+kube-public       Active   23h
+kube-system       Active   23h
+
+
+
+
+
+helm install argocd argo/argo-cd --namespace argocd --set nodeSelector.node-role=infra:NoSchedule
+NAME: argocd
+LAST DEPLOYED: Tue Aug 13 09:19:31 2024
+NAMESPACE: argocd
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+In order to access the server UI you have the following options:
+
+1. kubectl port-forward service/argocd-server -n argocd 8080:443
+
+    and then open the browser on http://localhost:8080 and accept the certificate
+
+2. enable ingress in the values file `server.ingress.enabled` and either
+      - Add the annotation for ssl passthrough: https://argo-cd.readthedocs.io/en/stable/operator-manual/ingress/#option-1-ssl-passthrough
+      - Set the `configs.params."server.insecure"` in the values file and terminate SSL at your ingress: https://argo-cd.readthedocs.io/en/stable/operator-manual/ingress/#option-2-multiple-ingress-objects-and-hosts
+
+
+After reaching the UI the first time you can login with username: admin and the random password generated during the installation. You can find the password by running:
+
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+
+(You should delete the initial secret afterwards as suggested by the Getting Started Guide: https://argo-cd.readthedocs.io/en/stable/getting_started/#4-login-using-the-cli)
+
+
+
+
+helm list -n argocd
+NAME    NAMESPACE       REVISION        UPDATED                                 STATUS          CHART           APP VERSION
+argocd  argocd          1               2024-08-13 09:19:31.688841169 +0000 UTC deployed        argo-cd-7.4.3   v2.12.0
+
+
+
+
+kubectl get pod -n argocd
+NAME                                                READY   STATUS    RESTARTS        AGE
+argocd-application-controller-0                     1/1     Running   0               5m33s
+argocd-applicationset-controller-65955b986d-kprnh   1/1     Running   2 (5m29s ago)   5m33s
+argocd-dex-server-758f576bb7-sptkn                  1/1     Running   0               5m33s
+argocd-notifications-controller-54dd575496-td6gt    1/1     Running   0               5m33s
+argocd-redis-6ddc76cf75-wkk9c                       1/1     Running   0               5m33s
+argocd-repo-server-8497dcbd4-xw5nk                  1/1     Running   0               5m33s
+argocd-server-64c545845d-c7kqv                      1/1     Running   0               5m33s
+
+
+Перенастроил svc на nodeport для открытия web интерфейса
+
+Пересоздал branch network так как все файлы были в корне при создание приложения выходила ошибка 
+Создал папку "kubernetis-network" в нее поместил yaml файлы
+
+
+Создал Проект Otus в argoCD
+
+Создал project в argocd с названием "otus"
+Создал project в argocd с названием "helm"
+Прикрепил манифесты в корнево директории
+Скрины в приложении argocd
+
+
+![Image alt](https://github.com/Kuber-2024-04OTUS/trimol_repo/blob/kubernetes-gitops/images/scrin0.png)
+![Image alt](https://github.com/Kuber-2024-04OTUS/trimol_repo/blob/kubernetes-gitops/images/scrin1.png)
+![Image alt](https://github.com/Kuber-2024-04OTUS/trimol_repo/blob/kubernetes-gitops/images/scrin2.png)
+![Image alt](https://github.com/Kuber-2024-04OTUS/trimol_repo/blob/kubernetes-gitops/images/scrin3.png)
