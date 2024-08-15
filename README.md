@@ -157,12 +157,15 @@ argocd-repo-server-8497dcbd4-xw5nk                  1/1     Running   0         
 argocd-server-64c545845d-c7kqv                      1/1     Running   0               5m33s
 
 
-
+Перенастроил svc на nodeport для открытия web интерфейса
 
 Пересоздал branch network так как все файлы были в корне при создание приложения выходила ошибка 
 Создал папку "kubernetis-network" в нее поместил yaml файлы
 
 
+Создал Проект Otus в argoCD
 
 Создал project в argocd с названием "otus"
-Создал приложение 
+Создал project в argocd с названием "helm"
+Прикрепил манифесты в корнево директории
+Скрины в приложении argocd
