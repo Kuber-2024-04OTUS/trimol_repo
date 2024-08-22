@@ -32,7 +32,7 @@ swapoff -a
 **modprobe overlay**
 **modprobe br_netfilter**
 
-------------------------------lsmod
+![image alt](https://github.com/Kuber-2024-04OTUS/trimol_repo/blob/kubernetes-prod/image/lsmod.png)
 
 
 
