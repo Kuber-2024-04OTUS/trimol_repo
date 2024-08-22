@@ -45,9 +45,11 @@ swapoff -a
 
 ![image alt](https://github.com/Kuber-2024-04OTUS/trimol_repo/blob/kubernetes-prod/image/cni_plugins.png)
 
+
 Перезапускаем параметры ядра
 
 **sysctl --system**
+
 ![image alt](https://github.com/Kuber-2024-04OTUS/trimol_repo/blob/kubernetes-prod/image/checkparam.png)
 
 
