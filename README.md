@@ -54,31 +54,37 @@ swapoff -a
 
 
 Отключаем UFW
-systemctl stop ufw && systemctl disable ufw
+
+**systemctl stop ufw && systemctl disable ufw**
 
 
 Установка CRI-O
-export OS=xUbuntu_22.04
-export CRIO_VERSION=1.25
+
+**export OS=xUbuntu_22.04**
+**export CRIO_VERSION=1.25**
 
 
 Обновляем списки репозиториев и устанавливаем CRIO, а также дополнительные утилиты
-echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/ /"| tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
 
-echo "deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$CRIO_VERSION/$OS/ /"| tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION.list
+**echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/ /"| tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list**
 
-curl -L https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION/$OS/Release.key | apt-key add -
+**echo "deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$CRIO_VERSION/$OS/ /"| tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION.list**
 
-curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/Release.key | apt-key add -
+**curl -L https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION/$OS/Release.key | apt-key add -**
 
-apt update && apt -y install cri-o cri-o-runc cri-tools
+**curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/Release.key | apt-key add -**
+
+**apt update && apt -y install cri-o cri-o-runc cri-tools**
 
 
 Запускаем crio и добавляем его в автозагрузку
-systemctl start crio && systemctl enable crio
+
+**systemctl start crio && systemctl enable crio**
 
 Проверяем статус crio
------------------------------------------------------------------Criostatus.png
+
+![image alt](https://github.com/Kuber-2024-04OTUS/trimol_repo/blob/kubernetes-prod/image/Criostatus.png)
+
 
 
 Установка Kubernetis v1.30
