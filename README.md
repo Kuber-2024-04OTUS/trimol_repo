@@ -310,4 +310,4 @@ PermitRootLogin yes
 ![image alt](https://github.com/Kuber-2024-04OTUS/trimol_repo/blob/kubernetes-prod/image/res_kubespray.png)
 
 **kubectl get nodes -o wide**
-![image alt](https://github.com/Kuber-2024-04OTUS/trimol_repo/blob/kubernetes-prod/image/res_kubespray_wide.png)
+![image alt](https://github.com/Kuber-2024-04OTUS/trimol_repo/blob/kubernetes-prod/image/res_kubespray_wide1.png)
