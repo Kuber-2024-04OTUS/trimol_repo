@@ -24,6 +24,7 @@ swapoff -a
 
 
 Загружаю дополнительные сетевые модули
+
 **cat <<EOF | tee /etc/modules-load.d/k8s.conf**
 **overlay**
 **br_netfilter**
@@ -37,12 +38,12 @@ swapoff -a
 
 
 **cat <<EOF | tee /etc/sysctl.d/k8s.conf**
-net.bridge.bridge-nf-call-iptables  = 1
-net.bridge.bridge-nf-call-ip6tables = 1
-net.ipv4.ip_forward                 = 1
-EOF
+**net.bridge.bridge-nf-call-iptables  = 1**
+**net.bridge.bridge-nf-call-ip6tables = 1**
+**net.ipv4.ip_forward                 = 1**
+**EOF**
 
--------------------------------cni_plugins
+![image alt](https://github.com/Kuber-2024-04OTUS/trimol_repo/blob/kubernetes-prod/image/cni_plugins.png)
 
 Перезапускаем параметры ядра
 sysctl --system
