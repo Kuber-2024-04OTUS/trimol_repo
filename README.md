@@ -1,4 +1,4 @@
-##Kubeadm
+Kubeadm
 
 Для выплнения дз развернул через vmware workstation 4 vm с ОС ubuntu 22.04
 с характеристика 2CPU 8Гб RAM
@@ -46,9 +46,10 @@ swapoff -a
 ![image alt](https://github.com/Kuber-2024-04OTUS/trimol_repo/blob/kubernetes-prod/image/cni_plugins.png)
 
 Перезапускаем параметры ядра
-sysctl --system
 
-----------------------------------checkparam.png
+**sysctl --system**
+![image alt](https://github.com/Kuber-2024-04OTUS/trimol_repo/blob/kubernetes-prod/image/checkparam.png)
+
 
 Отключаем UFW
 systemctl stop ufw && systemctl disable ufw
