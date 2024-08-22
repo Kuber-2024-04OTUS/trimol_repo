@@ -1,4 +1,4 @@
-#Kubeadm
+##Kubeadm
 
 Для выплнения дз развернул через vmware workstation 4 vm с ОС ubuntu 22.04
 с характеристика 2CPU 8Гб RAM
