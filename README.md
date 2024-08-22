@@ -88,26 +88,29 @@ swapoff -a
 
 
 Установка Kubernetis v1.30
-curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 
-echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /' | tee /etc/apt/sources.list.d/kubernetes.list
+**curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg**
+
+**echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /' | tee /etc/apt/sources.list.d/kubernetes.list**
 
 
-apt update && apt -y install kubelet kubeadm kubectl && apt-mark hold kubelet kubeadm kubectl
+**apt update && apt -y install kubelet kubeadm kubectl && apt-mark hold kubelet kubeadm kubectl**
 
 
 
 
 
 Выполняем только на master. Инициализируем мастер-ноду а также выделяем подсеть
-kubeadm init --pod-network-cidr=10.244.0.0/16
 
------------------------------------------------------------------------kubeinit.png
+**kubeadm init --pod-network-cidr=10.244.0.0/16**
+
+![image alt](https://github.com/Kuber-2024-04OTUS/trimol_repo/blob/kubernetes-prod/image/kubeinit.png)
 
 
-  mkdir -p $HOME/.kube
-  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+  **mkdir -p $HOME/.kube**
+  **sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config**
+  **sudo chown $(id -u):$(id -g) $HOME/.kube/config**
   
   
   
